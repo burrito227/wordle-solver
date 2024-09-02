@@ -173,3 +173,16 @@ def simulate_game(possible_words, output_sql_file):
 # Main execution
 output_sql_file = 'next_best_guess.sql'
 simulate_game(possible_words, output_sql_file)
+
+# Remove any duplicate rows
+with open(output_sql_file, 'r') as reader:
+    lines = reader.readlines()
+
+new_lines = []
+for line in lines:
+    if line not in new_lines:
+        new_lines.append(line)
+
+with open(output_sql_file, 'w') as sql_file:
+    for line in new_lines:
+        sql_file.write(line)

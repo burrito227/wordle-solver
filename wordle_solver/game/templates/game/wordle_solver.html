@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Solver</title>
+    <style>
+        .letter-box {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+            margin: 5px;
+            text-align: center;
+            line-height: 50px;
+            font-size: 24px;
+            border: 1px solid #000;
+            cursor: pointer;
+            user-select: none; /* Prevents text selection on click */
+        }
+        .grey {
+            background-color: grey;
+        }
+        .yellow {
+            background-color: yellow;
+        }
+        .green {
+            background-color: green;
+        }
+        .disabled {
+            cursor: not-allowed;
+            opacity: 0.6; /* Visual cue that the box is disabled */
+        }
+    </style>
+</head>
+<body>
+    <h1>Wordle Solver</h1>
+    
+    <!-- Display the current guess -->
+    <div id="feedback-container">
+        <!-- Initial guess is "salet", split into letter boxes -->
+        <div class="guess-row current-guess">
+            <div class="letter-box grey" data-index="0">s</div>
+            <div class="letter-box grey" data-index="1">a</div>
+            <div class="letter-box grey" data-index="2">l</div>
+            <div class="letter-box grey" data-index="3">e</div>
+            <div class="letter-box grey" data-index="4">t</div>
+        </div>
+    </div>
+
+    <!-- Hidden inputs to store all guesses and feedbacks -->
+    <form method="post" id="wordle-form">
+        {% csrf_token %}
+        <input type="hidden" name="guess[]" value="salet"> <!-- Store the initial guess -->
+        <input type="hidden" name="feedback[]" value="-----" id="feedback">
+        <button type="button" id="submit-feedback">Submit</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#submit-feedback').click(function() {
+                // Gather all feedback and guesses
+                var allFeedback = [];
+                var allGuesses = [];
+
+                // Collect feedback for each guess row
+                $('#feedback-container .guess-row').each(function() {
+                    var feedback = '';
+                    $(this).find('.letter-box').each(function() {
+                        if ($(this).hasClass('grey')) {
+                            feedback += '-';
+                        } else if ($(this).hasClass('yellow')) {
+                            feedback += 'Y';
+                        } else if ($(this).hasClass('green')) {
+                            feedback += 'G';
+                        }
+                    });
+                    allFeedback.push(feedback);
+
+                    // Add the guess (the text content of each letter box concatenated)
+                    allGuesses.push($(this).text().replace(/\s+/g, ''));
+                });
+
+                // Send AJAX request to the server with all feedback and guesses
+                $.ajax({
+                    url: '{% url "wordle_solver" %}',
+                    type: 'POST',
+                    data: {
+                        'feedback[]': allFeedback,
+                        'guess[]': allGuesses,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        // Disable the previous guess row to prevent further edits
+                        $('.current-guess .letter-box').addClass('disabled').off('click');
+
+                        // Update the page with the new guess and mark it as the current guess
+                        var newRow = '<div class="guess-row current-guess">';
+                        response.current_guess.split('').forEach(function(letter) {
+                            newRow += '<div class="letter-box grey">' + letter + '</div>';
+                        });
+                        newRow += '</div>';
+                        $('#feedback-container').append(newRow);
+
+                        // Add the new guess and feedback as hidden inputs for the next round
+                        $('<input>').attr({
+                            type: 'hidden',
+                            name: 'guess[]',
+                            value: response.current_guess
+                        }).appendTo('#wordle-form');
+                        $('<input>').attr({
+                            type: 'hidden',
+                            name: 'feedback[]',
+                            value: '-----'  // Initialize feedback for the new guess
+                        }).appendTo('#wordle-form');
+
+                        // Re-bind click events for the new current guess row
+                        bindClickEvents();
+                    }
+                });
+            });
+
+            function bindClickEvents() {
+                // Letter box click handling only for the current guess row
+                document.querySelectorAll('.current-guess .letter-box').forEach(box => {
+                    box.addEventListener('click', function() {
+                        // Cycle through colors: grey -> yellow -> green
+                        if (this.classList.contains('grey')) {
+                            this.classList.remove('grey');
+                            this.classList.add('yellow');
+                        } else if (this.classList.contains('yellow')) {
+                            this.classList.remove('yellow');
+                            this.classList.add('green');
+                        } else if (this.classList.contains('green')) {
+                            this.classList.remove('green');
+                            this.classList.add('grey');
+                        }
+
+                        // Update the feedback input field for the current guess
+                        updateFeedback();
+                    });
+                });
+            }
+
+            function updateFeedback() {
+                let feedback = '';
+                document.querySelectorAll('.current-guess .letter-box').forEach(box => {
+                    if (box.classList.contains('grey')) {
+                        feedback += '-';
+                    } else if (box.classList.contains('yellow')) {
+                        feedback += 'Y';
+                    } else if (box.classList.contains('green')) {
+                        feedback += 'G';
+                    }
+                });
+                document.querySelector('#feedback').value = feedback;
+            }
+
+            // Initialize click events for the first guess
+            bindClickEvents();
+        });
+    </script>
+</body>
+</html>
