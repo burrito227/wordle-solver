@@ -143,13 +143,13 @@ def simulate_game(possible_words, output_sql_file):
     # Open the file for writing
     with open(output_sql_file, 'w') as sql_file:
         # Write SQL to create the table (if needed)
-        sql_file.write('''
-            CREATE TABLE IF NOT EXISTS next_best_guess (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                remaining_words TEXT,
-                next_best_word TEXT
-            );
-        ''')
+        # sql_file.write('''
+        #     CREATE TABLE IF NOT EXISTS next_best_guess (
+        #         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        #         remaining_words TEXT,
+        #         next_best_word TEXT
+        #     );
+        # ''')
 
         for actual_word in possible_words:
             current_guess = 'salet'
@@ -165,7 +165,7 @@ def simulate_game(possible_words, output_sql_file):
                 _, next_best_word = calculate_entropy(remaining_words)
 
                 # Insert the current state into the SQL file
-                insert_statement = f"INSERT INTO next_best_guess (remaining_words, next_best_word) VALUES ('{','.join(remaining_words)}', '{next_best_word}');\n"
+                insert_statement = f"INSERT INTO [dbo].game_nextbestguess (remaining_words, next_best_word) VALUES ('{','.join(remaining_words)}', '{next_best_word}');\n"
                 sql_file.write(insert_statement)
 
                 current_guess = next_best_word
