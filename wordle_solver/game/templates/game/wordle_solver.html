@@ -57,6 +57,14 @@
         </div>
     </div>
 
+    <!-- Hidden inputs to store all guesses and feedbacks -->
+    <form method="post" id="wordle-form">
+        {% csrf_token %}
+        <input type="hidden" name="guess[]" value="salet"> <!-- Store the initial guess -->
+        <input type="hidden" name="feedback[]" value="-----" id="feedback">
+        <button type="button" id="submit-feedback">Submit</button>
+    </form>
+
     <!-- Instructions section -->
     <div id="introduction">
         <h3>Welcome!</h3>
@@ -71,14 +79,6 @@
         <p>3. Eventually, this website will guess the correct word. Simply refresh the page to play again.</p>
         <p>If the site continues to give you the same guess more than once, it's possible that one of the tiles in the previous step(s) has the incorrect color recorded. Refresh to reset all tiles.</p>
     </div>
-
-    <!-- Hidden inputs to store all guesses and feedbacks -->
-    <form method="post" id="wordle-form">
-        {% csrf_token %}
-        <input type="hidden" name="guess[]" value="salet"> <!-- Store the initial guess -->
-        <input type="hidden" name="feedback[]" value="-----" id="feedback">
-        <button type="button" id="submit-feedback">Submit</button>
-    </form>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
