@@ -28,7 +28,6 @@ def word_matches_feedback(word, feedback, current_guess):
     # Create a dictionary to keep track of letter counts in the word
     letter_counts = {letter: word.count(letter) for letter in set(word)}
 
-    # Iterate through each letter and its feedback
     for i, letter_feedback in enumerate(feedback):
         if letter_feedback == 'G':
             # If feedback is 'G', the letter must be in the exact position
@@ -37,14 +36,16 @@ def word_matches_feedback(word, feedback, current_guess):
             # Reduce the count for the matched letter
             letter_counts[current_guess[i]] -= 1
 
-        elif letter_feedback == 'Y':
+    for i, letter_feedback in enumerate(feedback):
+        if letter_feedback == 'Y':
             # If feedback is 'Y', the letter must be present but not in the same position
-            if word[i] == current_guess[i] or current_guess[i] not in word:
+            if current_guess[i] not in word or word[i] == current_guess[i] or letter_counts[current_guess[i]] <= 0:
                 return False
             # Reduce the count for the matched letter
             letter_counts[current_guess[i]] -= 1
 
-        elif letter_feedback == '-':
+    for i, letter_feedback in enumerate(feedback):
+        if letter_feedback == '-':
             # If feedback is '-', the letter should not appear in the word
             # unless it's already matched as 'G' or 'Y'
             if current_guess[i] in word and letter_counts[current_guess[i]] > 0:
