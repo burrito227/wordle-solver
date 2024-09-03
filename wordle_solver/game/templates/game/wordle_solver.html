@@ -31,6 +31,15 @@
             cursor: not-allowed;
             opacity: 0.6; /* Visual cue that the box is disabled */
         }
+        #introduction {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        #introduction h3 {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -46,6 +55,21 @@
             <div class="letter-box grey" data-index="3">e</div>
             <div class="letter-box grey" data-index="4">t</div>
         </div>
+    </div>
+
+    <!-- Instructions section -->
+    <div id="introduction">
+        <h3>Welcome!</h3>
+        <p>This website is an academic project for solving wordle in as few guesses as possible. The github for this project is located at https://github.com/burrito227/wordle-solver. This tool is intended to provide you with the next guess to try at wordle after taking your feedback. Of course, you can also test the system by thinking of your own 5-letter word!</p>
+        <p>Note that this tool will only guess words that are fair game. There may be words that are accepted as a valid English word by Wordle, but not considered to be fair game.</p>
+        <p>For example, the word "aahed" may technically be an English word, and is accepted as a valid word by Wordle, but it is extrememly unlikely that it will ever be the mystery word of the day.</p>
+        <p>List of all words considered fair game: https://github.com/burrito227/wordle-solver/blob/main/Entropy_Calculations/possible_words.txt</p>
+
+        <h3>How to Use the Wordle Solver To Guess Today's Mystery Word</h3>
+        <p>1. Input the current word into The New York Times Wordle game. The first guess is always salet.</p>
+        <p>2. After entering the word into Wordle, come back to this page and record the results of the guess by clicking the boxes for each letter until they turn to the correct color.</p>
+        <p>3. Eventually, this website will guess the correct word. Simply refresh the page to play again.</p>
+        <p>If the site continues to give you the same guess more than once, it's possible that one of the tiles in the previous step(s) has the incorrect color recorded. Refresh to reset all tiles.</p>
     </div>
 
     <!-- Hidden inputs to store all guesses and feedbacks -->
