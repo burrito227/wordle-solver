@@ -13,26 +13,65 @@ def calculate_remaining_words(all_feedback, all_guesses):
 
     return remaining_words
 
-# Function to determine if a word matches the feedback
 def word_matches_feedback(word, feedback, current_guess):
-    # Implement logic to check if the word matches the feedback given the current guess
-    for i, letter in enumerate(feedback):
-        if letter == 'G' and word[i] != current_guess[i]:
-            return False
-        if letter == 'Y' and (word[i] == current_guess[i] or current_guess[i] not in word):
-            return False
-        if letter == '-' and current_guess[i] in word:
-            return False
-    return True
+    """
+    Checks if a word matches the given feedback based on the current guess.
 
-# Function to get the next best guess based on remaining words
+    Args:
+    word (str): The word to check.
+    feedback (str): A string of feedback ('G', 'Y', '-') for each letter of the guess.
+    current_guess (str): The guessed word.
+
+    Returns:
+    bool: True if the word matches the feedback, False otherwise.
+    """
+    # Create a dictionary to keep track of letter counts in the word
+    letter_counts = {letter: word.count(letter) for letter in set(word)}
+
+    # Iterate through each letter and its feedback
+    for i, letter_feedback in enumerate(feedback):
+        if letter_feedback == 'G':
+            # If feedback is 'G', the letter must be in the exact position
+            if word[i] != current_guess[i]:
+                return False
+            # Reduce the count for the matched letter
+            letter_counts[current_guess[i]] -= 1
+
+        elif letter_feedback == 'Y':
+            # If feedback is 'Y', the letter must be present but not in the same position
+            if word[i] == current_guess[i] or current_guess[i] not in word:
+                return False
+            # Reduce the count for the matched letter
+            letter_counts[current_guess[i]] -= 1
+
+        elif letter_feedback == '-':
+            # If feedback is '-', the letter should not appear in the word
+            # unless it's already matched as 'G' or 'Y'
+            if current_guess[i] in word and letter_counts[current_guess[i]] > 0:
+                return False
+
+    return True
+    
 def get_next_best_guess(remaining_words):
+    """
+    Query the database for the next best guess given the current remaining words.
+    
+    Args:
+    remaining_words (list): List of remaining words.
+
+    Returns:
+    str: The next best guess.
+    """
+    # Ensure the remaining words are in alphabetical order
+    remaining_words.sort()
     remaining_words_str = ','.join(remaining_words)
+    
+    # Query the database
     try:
         next_best_guess_entry = NextBestGuess.objects.get(remaining_words=remaining_words_str)
         return next_best_guess_entry.next_best_word
     except NextBestGuess.DoesNotExist:
-        return "crane"  # Fallback or default guess if no entry is found
+        return "crane" # Fallback or default guess if no entry is found
 
 def wordle_solver(request):
     if request.method == 'POST' and request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':

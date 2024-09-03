@@ -27,7 +27,7 @@ def get_feedback(guess, actual):
     for i in range(5):
         if guess[i] == actual[i]:
             feedback[i] = 'G'
-            actual_letters[i] = None  # Mark this letter as used
+            actual_letters[i] = None  # Mark this letter as used in the exact place
 
     # Second pass: Check for correct letters in the wrong place ('Y')
     for i in range(5):
@@ -51,29 +51,42 @@ def get_remaining_words(guess, feedback, words):
     list: Filtered list of remaining valid words.
     """
     remaining_words = []
+
+    # Create lists to track green, yellow, and grey letters and their positions
     green_letters = [guess[i] if feedback[i] == 'G' else None for i in range(5)]
     yellow_letters = [guess[i] if feedback[i] == 'Y' else None for i in range(5)]
-    grey_letters = set(guess[i] for i in range(5) if feedback[i] == '-')
+    grey_positions = [(guess[i], i) for i in range(5) if feedback[i] == '-']
 
     for word in words:
         is_valid = True
 
-        # Check greens
+        # Check greens (correct letters in correct positions)
         for i, letter in enumerate(green_letters):
             if letter and word[i] != letter:
                 is_valid = False
                 break
 
-        # Check yellows
+        # Check yellows (correct letters in incorrect positions)
         for i, letter in enumerate(yellow_letters):
             if letter:
                 if letter not in word or word[i] == letter:
                     is_valid = False
                     break
 
-        # Check greys
-        if any(letter in word for letter in grey_letters):
-            is_valid = False
+        # Check greys (letters that should not be in the word in specific positions)
+        for letter, pos in grey_positions:
+            if word[pos] == letter:
+                is_valid = False
+                break
+
+        # Ensure letters marked grey are not present unless required by a green or yellow rule
+        for letter, _ in grey_positions:
+            if letter in word:
+                # If the letter exists in the word but isn't valid, ensure it's due to green or yellow requirements
+                required_count = sum([1 for l in green_letters + yellow_letters if l == letter])
+                if word.count(letter) > required_count:
+                    is_valid = False
+                    break
 
         if is_valid:
             remaining_words.append(word)
@@ -156,12 +169,19 @@ def simulate_game(possible_words, output_sql_file):
             remaining_words = possible_words.copy()
 
             while current_guess != actual_word:
+                print("Starting Round")
+                print("actual_word: %s\ncurrent_guess: %s" % (actual_word, current_guess))
+
                 feedback = get_feedback(current_guess, actual_word)
                 remaining_words = get_remaining_words(current_guess, feedback, remaining_words)
                 
                 if not remaining_words:  # No possible words remaining
+                    with open('error.txt', 'a') as writer:
+                        writer.write(actual_word + "\n")
                     break
 
+                # Sort remaining_words alphabetically before entropy calculation and SQL insert
+                remaining_words.sort()
                 _, next_best_word = calculate_entropy(remaining_words)
 
                 # Insert the current state into the SQL file
