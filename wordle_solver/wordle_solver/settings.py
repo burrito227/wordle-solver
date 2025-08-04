@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG')
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [os.environ.get('DJANGO_ALLOWED_HOSTS')]
 
 
 # Application definition
@@ -76,17 +76,16 @@ WSGI_APPLICATION = 'wordle_solver.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'sql_server.pyodbc',
-        'NAME': 'wordle-database',
-        'USER': 'vaderalligator',
+        'ENGINE': 'mssql',
+        'NAME': 'wordle',
+        'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': 'wordlesql-server.database.windows.net',
-        'PORT': '1433',
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
 
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',
-            'encrypt': 'yes',
-            'trustServerCertificate': 'no',
+            'extra_params': 'TrustServerCertificate=yes;Encrypt=yes;',
         },
     }
 }
