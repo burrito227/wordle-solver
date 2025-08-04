@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM --platform=linux/amd64 public.ecr.aws/docker/library/python:3.9.10-slim-buster
+FROM --platform=linux/amd64 public.ecr.aws/docker/library/python:3.9-slim-bookworm
 
 EXPOSE 8000
 
@@ -17,10 +17,10 @@ RUN ACCEPT_EULA=Y apt-get install -y msodbcsql18
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ARG DJANGO_SECRET_KEY
-ENV DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
-ARG DB_PASSWORD
-ENV DB_PASSWORD=$DB_PASSWORD
+# ARG DJANGO_SECRET_KEY
+# ENV DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
+# ARG DB_PASSWORD
+# ENV DB_PASSWORD=$DB_PASSWORD
 
 # Copy project
 COPY . /wordle-solver

@@ -17,5 +17,27 @@ services:
       timeout: 10s
       retries: 3
 
+  wordle-solver:
+    build: .
+    container_name: wordle-solver
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sqlserver          # Service name, not variable
+      - DB_PORT=1433
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+    depends_on:
+      - sqlserver
+    volumes:
+      - ./wordle_solver:/app                     # For development
+    working_dir: /app
+    #entrypoint: ["/bin/bash", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+    restart: unless-stopped
+
 volumes:
-  sqlserver_data: 
+  sqlserver_data:
