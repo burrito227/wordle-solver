@@ -76,8 +76,8 @@ WSGI_APPLICATION = 'wordle_solver.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'sql_server.pyodbc',
-        'NAME': 'wordle-database',
+        'ENGINE': 'mssql',
+        'NAME': 'wordle',
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
@@ -85,8 +85,7 @@ DATABASES = {
 
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',
-            'TrustServerCertificate': 'yes',
-            'Encrypt': 'yes',
+            'extra_params': 'TrustServerCertificate=yes;Encrypt=yes;',
         },
     }
 }
