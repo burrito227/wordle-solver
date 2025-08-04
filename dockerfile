@@ -1,4 +1,3 @@
-# Use an official Python runtime as a parent image
 FROM --platform=linux/amd64 public.ecr.aws/docker/library/python:3.9-slim-bookworm
 
 EXPOSE 8000

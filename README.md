@@ -2,4 +2,6 @@
 
 ## References
 1. Microsoft SQL Docker image
-https://hub.docker.com/r/microsoft/mssql-server
+[mssql-server](https://hub.docker.com/r/microsoft/mssql-server)
+2. Debian releases
+[Debian-Releases](https://www.debian.org/releases/)
