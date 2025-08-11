@@ -2,23 +2,19 @@ FROM --platform=linux/amd64 public.ecr.aws/docker/library/python:3.9-slim-bookwo
 
 EXPOSE 8000
 
-# Install tools
-RUN apt-get update && apt-get install -y gnupg curl unixodbc
-
-# Install Microsoft repo for Microsoft ODBC Driver 18 for SQL Server
-RUN apt-get update
-RUN apt-get install -y curl gnupg
-RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-RUN curl -sSL https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list
-RUN apt-get update
-RUN ACCEPT_EULA=Y apt-get install -y msodbcsql18
+# Install basic tools first, then setup Microsoft repo and install SQL Server driver
+RUN apt-get update && \
+    apt-get install -y curl gnupg && \
+    curl -sSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -sSL https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y unixodbc msodbcsql18 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
-# Copy project
-COPY . /wordle-solver
 
 # Set work directory
 WORKDIR /wordle-solver/wordle_solver
@@ -27,6 +23,10 @@ WORKDIR /wordle-solver/wordle_solver
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./entrypoint.sh /wordle-solver/entrypoint.sh
+# Copy project
+COPY . /wordle-solver
+
+# Make entrypoint executable (after copying project)
 RUN chmod +x /wordle-solver/entrypoint.sh
+
 ENTRYPOINT ["/wordle-solver/entrypoint.sh"] 
