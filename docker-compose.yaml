@@ -12,7 +12,7 @@ services:
       - sqlserver_data:/var/opt/mssql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${MSSQL_SA_PASSWORD} -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${MSSQL_SA_PASSWORD} -Q 'SELECT 1' -C"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -27,16 +27,15 @@ services:
       - DJANGO_DEBUG=${DJANGO_DEBUG}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=sqlserver       # Service name, not variable
+      - DB_HOST=sqlserver
       - DB_PORT=${DB_PORT} 
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
     depends_on:
       - sqlserver
     volumes:
-      - ./wordle_solver:/app                     # For development
+      - ./wordle_solver:/app
     working_dir: /app
-    #entrypoint: ["/bin/bash", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
     restart: unless-stopped
 
 volumes:
