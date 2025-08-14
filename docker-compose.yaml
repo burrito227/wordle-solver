@@ -32,7 +32,8 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
     volumes:
       - ./wordle_solver:/app
     working_dir: /app
