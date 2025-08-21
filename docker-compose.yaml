@@ -20,6 +20,12 @@ services:
   pre_deployment:
     build: ./deployment
     container_name: pre_deployment
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sqlserver
+      - DB_PORT=${DB_PORT} 
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
     depends_on:
       sqlserver:
         condition: service_healthy
