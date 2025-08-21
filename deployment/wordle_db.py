@@ -34,5 +34,5 @@ def create_connection(server: str,
             wait_time += wait_time_increment
 
             if retries == 0:
-                logger.error(f"Failed to create database connection. Exiting...")
+                logger.error("Failed to create database connection. Exiting...")
                 sys.exit(1)
