@@ -17,6 +17,13 @@ services:
       timeout: 10s
       retries: 3
 
+  pre_deployment:
+    build: ./deployment
+    container_name: pre_deployment
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
   wordle-solver:
     build: .
     container_name: wordle-solver
@@ -34,6 +41,8 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+      pre_deployment:
+        condition: service_completed_successfully
     volumes:
       - ./wordle_solver:/app
     working_dir: /app
